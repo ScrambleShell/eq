@@ -47,7 +47,7 @@ func NewPortAudioInterface() (*PortAudioInterface, error) {
 }
 
 func (p *PortAudioInterface) processAudio(in, out []float32) {
-	copy(out, in)
+	//copy(out, in)
 	p.frameBuffer = append(p.frameBuffer, in...)
 }
 
