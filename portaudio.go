@@ -10,7 +10,7 @@ import (
 const (
 	InputChannels  = 1
 	OutputChannels = 1
-	SampleRate     = 16000
+	SampleRate     = 44100
 )
 
 type PortAudioInterface struct {

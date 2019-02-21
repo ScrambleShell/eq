@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	width  = int32(640)
+	width  = int32(620)
 	height = int32(500)
 
-	columns = 32
+	// THIS IS NOW HARDCODED IN BINNING CODE
+	columns = 31
 	//columns = 10
 )
 
@@ -45,18 +46,85 @@ func fftMag(in []float32) []float64 {
 	return toReturn
 }
 
-func binFreq(in []float64, bins int) []int {
-	toReturn := make([]float64, bins)
-	binSize := len(in) / bins
+// https://www.presonus.com/learn/technical-articles/What-Is-a-Graphic-Eq
+/* 31 bin:
+18k   - 22.05k  ~4.1k
+14.5k - 18k     ~3.5k
+11.5k - 14.5k   ~3k
+9k    - 11.5k   ~2.5k
+7.2k  - 9k      ~1.8k
+5.7k  - 7.2k    ~1.5k
+4.5k  - 5.7k    ~1.2k
+3.6k  - 4.5k    ~900
+2.85k - 3.6k    ~750
+2.25k - 2.85k   ~600
+1.8k  - 2.25k   ~450
+1.45k - 1.8k    ~350
+1.15k - 1.45k   ~300
+900   - 1.15k   ~250
+720   - 900     ~180
+570   - 720     ~150
+450   - 570     ~120
+360   - 450     ~90
+285   - 360     ~75
+225   - 285     ~60
+180   - 225     ~45
+142.5 - 180     ~37.5
+112.5 - 142.5   ~30
+90    - 112.5   ~22.5
+71.5  - 90      ~18.5
+56.5  - 71.5    ~15
+45    - 56.5    ~11.5
+36    - 45      ~9
+28.5  - 36      ~7.5
+22.5  - 28.5    ~6
+17.5  - 22.5    ~5
+*/
+func binFreq(in []float64) []int {
+	binBottoms := []float64{
+		18000.0,
+		14500.0,
+		11500.0,
+		9000.0,
+		7200.0,
+		5700.0,
+		4500.0,
+		3600.0,
+		2850.0,
+		2250.0,
+		1800.0,
+		1450.0,
+		1150.0,
+		900.0,
+		720.0,
+		570.0,
+		450.0,
+		360.0,
+		285.0,
+		225.0,
+		180.0,
+		142.5,
+		112.5,
+		90.0,
+		71.5,
+		56.5,
+		45.0,
+		36.0,
+		28.5,
+		22.5,
+		17.5,
+	}
+	toReturn := make([]float64, 31)
 	for i, y := range in {
-		bin := i / binSize
-		if bin >= bins {
-			continue
+		for j, bottom := range binBottoms {
+			if float64(i*5.0) > bottom {
+				toReturn[30-j] += y / 4.0
+				break
+			}
 		}
-		toReturn[bin] += y
 	}
 
-	toReturnInts := make([]int, bins)
+	toReturnInts := make([]int, 31)
 	for i := range toReturn {
 		toReturnInts[i] = int(math.Ceil(toReturn[i]))
 	}
@@ -70,23 +138,19 @@ func audioLoop(binChan chan []int) {
 		return
 	}
 
-	frameBuffer := make([]float32, 1602) // this should be 100ms worth
-
+	frameBuffer := make([]float32, 8820) // this should be 200 ms worth
+	readBuffer := make([]float32, 8820)
 	for {
 		time.Sleep(100 * time.Millisecond)
-		n, err := audioInterface.ReadSamples(frameBuffer)
+		n, err := audioInterface.ReadSamples(readBuffer)
 		if err != nil {
 			fmt.Println("Read Error", err)
 			return
 		}
+		frameBuffer = frameBuffer[n:]
+		frameBuffer = append(frameBuffer, readBuffer[:n]...)
 
-		if n < len(frameBuffer) {
-			fmt.Println("Underread")
-		}
-
-		fmt.Println(n)
-
-		binChan <- binFreq(fftMag(frameBuffer), columns)
+		binChan <- binFreq(fftMag(frameBuffer))
 	}
 }
 
