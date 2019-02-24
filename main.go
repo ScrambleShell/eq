@@ -19,7 +19,7 @@ const (
 	//columns = 10
 )
 
-func convertTo64(ar []float32) []float64 {
+func convertTo64(ar []int32) []float64 {
 	newar := make([]float64, len(ar))
 	for i, v := range ar {
 		newar[i] = float64(v)
@@ -37,7 +37,7 @@ func convertTo64(ar []float32) []float64 {
 // element n-1: 0.5 amp * happens once
 // all are cosine funcs
 // magnitude is * n
-func fftMag(in []float32) []float64 {
+func fftMag(in []int32) []float64 {
 	cmplxResults := fft.FFTReal(convertTo64(in))
 	toReturn := make([]float64, (len(cmplxResults)/2)-1)
 	for i := 1; i < len(cmplxResults)/2; i++ {
@@ -118,12 +118,13 @@ func binFreq(in []float64) []int {
 	for i, y := range in {
 		for j, bottom := range binBottoms {
 			if float64(i*5.0) > bottom {
-				toReturn[30-j] += y / 16.0
+				toReturn[30-j] += y / 8000000000.0
 				break
 			}
 		}
 	}
 
+	fmt.Println(toReturn)
 	toReturnInts := make([]int, 31)
 	for i := range toReturn {
 		toReturnInts[i] = int(math.Ceil(toReturn[i]))
@@ -138,8 +139,8 @@ func audioLoop(binChan chan []int) {
 		return
 	}
 
-	frameBuffer := make([]float32, 8820) // this should be 200 ms worth
-	readBuffer := make([]float32, 8820)
+	frameBuffer := make([]int32, 8820) // this should be 200 ms worth
+	readBuffer := make([]int32, 8820)
 	for {
 		time.Sleep(100 * time.Millisecond)
 		n, err := audioInterface.ReadSamples(readBuffer)

@@ -15,7 +15,7 @@ const (
 
 type PortAudioInterface struct {
 	stream      *portaudio.Stream
-	frameBuffer []float32
+	frameBuffer []int32
 }
 
 func NewPortAudioInterface() (*PortAudioInterface, error) {
@@ -31,7 +31,7 @@ func NewPortAudioInterface() (*PortAudioInterface, error) {
 	p.Output.Channels = OutputChannels
 	p.SampleRate = SampleRate
 	writer := &PortAudioInterface{
-		frameBuffer: make([]float32, 0),
+		frameBuffer: make([]int32, 0),
 	}
 	writer.stream, err = portaudio.OpenStream(p, writer.processAudio)
 	if err != nil {
@@ -46,12 +46,12 @@ func NewPortAudioInterface() (*PortAudioInterface, error) {
 	return writer, nil
 }
 
-func (p *PortAudioInterface) processAudio(in, out []float32) {
+func (p *PortAudioInterface) processAudio(in, out []int32) {
 	//copy(out, in)
 	p.frameBuffer = append(p.frameBuffer, in...)
 }
 
-func (p *PortAudioInterface) ReadSamples(buf []float32) (n int, err error) {
+func (p *PortAudioInterface) ReadSamples(buf []int32) (n int, err error) {
 	if len(p.frameBuffer) >= len(buf) {
 		copy(buf, p.frameBuffer[:len(buf)])
 		p.frameBuffer = p.frameBuffer[len(buf):]
@@ -59,7 +59,7 @@ func (p *PortAudioInterface) ReadSamples(buf []float32) (n int, err error) {
 	} else {
 		copy(buf, p.frameBuffer)
 		n := len(p.frameBuffer)
-		p.frameBuffer = make([]float32, 0)
+		p.frameBuffer = make([]int32, 0)
 		return n, nil
 	}
 	return 0, errors.New("Unknown read error")
