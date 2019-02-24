@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	width  = int32(620)
-	height = int32(500)
+	width  = int32(930)
+	height = int32(800)
 
 	// THIS IS NOW HARDCODED IN BINNING CODE
 	columns = 31
@@ -118,7 +118,7 @@ func binFreq(in []float64) []int {
 	for i, y := range in {
 		for j, bottom := range binBottoms {
 			if float64(i*5.0) > bottom {
-				toReturn[30-j] += y / 4.0
+				toReturn[30-j] += y / 16.0
 				break
 			}
 		}
