@@ -6,6 +6,7 @@ import (
 	"math/cmplx"
 	"time"
 
+	"github.com/bhmorse/eq/portaudio"
 	"github.com/mjibson/go-dsp/fft"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -133,7 +134,7 @@ func binFreq(in []float64) []int {
 }
 
 func audioLoop(binChan chan []int) {
-	audioInterface, err := NewPortAudioInterface()
+	audioInterface, err := portaudio.NewPortAudioInterface()
 	if err != nil {
 		fmt.Println("Error creating audio interface", err)
 		return
