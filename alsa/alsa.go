@@ -1,7 +1,6 @@
 package alsa
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cocoonlife/goalsa"
@@ -28,6 +27,8 @@ type ALSAInterface struct {
 
 func NewALSAInterface() (*ALSAInterface, error) {
 	toReturn := ALSAInterface{}
+	bufferParams := bufferParams()
+	var err error
 	toReturn.playback, err = alsa.NewPlaybackDevice("hw:0", 1, alsa.FormatS32LE, 44100, bufferParams)
 	if err != nil {
 		fmt.Println("Error establishing ALSA playback device", err)
@@ -38,9 +39,9 @@ func NewALSAInterface() (*ALSAInterface, error) {
 		fmt.Println("Error establishing ALSA capture device", err)
 		return nil, err
 	}
-	return toReturn, nil
+	return &toReturn, nil
 }
 
 func (a *ALSAInterface) ReadSamples(buf []float32) (n int, err error) {
-	return toReturn.capture.Read(buf)
+	return a.capture.Read(buf)
 }
