@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	InputChannels  = 1
-	OutputChannels = 1
+	InputChannels  = 2
+	OutputChannels = 2
 	SampleRate     = 44100
 )
 

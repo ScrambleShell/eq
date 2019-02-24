@@ -7,10 +7,8 @@ import (
 )
 
 const (
-	periodFrames     = 2048
-	periods          = 4
-	numIntSamples    = periodFrames * 2
-	numBufferSamples = 4
+	periodFrames = 8820
+	periods      = 2
 )
 
 func bufferParams() alsa.BufferParams {
@@ -29,12 +27,12 @@ func NewALSAInterface() (*ALSAInterface, error) {
 	toReturn := ALSAInterface{}
 	bufferParams := bufferParams()
 	var err error
-	toReturn.playback, err = alsa.NewPlaybackDevice("hw:0", 1, alsa.FormatS32LE, 44100, bufferParams)
+	toReturn.playback, err = alsa.NewPlaybackDevice("hw:0", 2, alsa.FormatS32LE, 44100, bufferParams)
 	if err != nil {
 		fmt.Println("Error establishing ALSA playback device", err)
 		return nil, err
 	}
-	toReturn.capture, err = alsa.NewCaptureDevice("hw:0", 1, alsa.FormatS32LE, 44100, bufferParams)
+	toReturn.capture, err = alsa.NewCaptureDevice("hw:0", 2, alsa.FormatS32LE, 44100, bufferParams)
 	if err != nil {
 		fmt.Println("Error establishing ALSA capture device", err)
 		return nil, err

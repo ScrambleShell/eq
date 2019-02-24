@@ -140,14 +140,14 @@ func audioLoop(binChan chan []int) {
 		return
 	}
 
-	frameBuffer := make([]int32, 8820) // this should be 200 ms worth
-	readBuffer := make([]int32, 8820)
+	frameBuffer := make([]int32, 8820*2) // this should be 200 ms worth
+	readBuffer := make([]int32, 8820*2)
 	for {
 		time.Sleep(100 * time.Millisecond)
 		n, err := audioInterface.ReadSamples(readBuffer)
 		if err != nil {
 			fmt.Println("Read Error", err)
-			return
+			continue
 		}
 		frameBuffer = frameBuffer[n:]
 		frameBuffer = append(frameBuffer, readBuffer[:n]...)
