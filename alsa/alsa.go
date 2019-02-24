@@ -42,6 +42,6 @@ func NewALSAInterface() (*ALSAInterface, error) {
 	return &toReturn, nil
 }
 
-func (a *ALSAInterface) ReadSamples(buf []float32) (n int, err error) {
+func (a *ALSAInterface) ReadSamples(buf []int32) (n int, err error) {
 	return a.capture.Read(buf)
 }
