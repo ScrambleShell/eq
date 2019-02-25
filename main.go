@@ -20,10 +20,11 @@ const (
 	//columns = 10
 )
 
+// This converts and picks a single channel
 func convertTo64(ar []int32) []float64 {
-	newar := make([]float64, len(ar))
-	for i, v := range ar {
-		newar[i] = float64(v)
+	newar := make([]float64, len(ar)/2)
+	for i := range newar {
+		newar[i] = float64(ar[i*2])
 	}
 	return newar
 }
@@ -125,7 +126,7 @@ func binFreq(in []float64) []int {
 		}
 	}
 
-	fmt.Println(toReturn)
+	//fmt.Println(toReturn)
 	toReturnInts := make([]int, 31)
 	for i := range toReturn {
 		toReturnInts[i] = int(math.Ceil(toReturn[i]))
@@ -149,6 +150,7 @@ func audioLoop(binChan chan []int) {
 			fmt.Println("Read Error", err)
 			continue
 		}
+
 		frameBuffer = frameBuffer[n:]
 		frameBuffer = append(frameBuffer, readBuffer[:n]...)
 
